@@ -74,6 +74,21 @@ public struct Move {
             case .halfTurn: return .halfTurn
             }
         }
+        
+        func isOpposite(other: Magnitude) -> Bool {
+            return opposite == other
+        }
+        
+        func add(other: Magnitude) -> Magnitude {
+            assert(self.opposite != other)
+            if self == .halfTurn {
+                return other.opposite
+            } else if other == .halfTurn {
+                return self.opposite
+            } else {
+                return .halfTurn
+            }
+        }
     }
 
     public let face: Face
@@ -81,6 +96,15 @@ public struct Move {
 
     public var opposite: Move {
         return Move(face: self.face, magnitude: self.magnitude.opposite)
+    }
+    
+    // works only for the same face and if the magnitude is not opposite
+    public func add(other: Move) -> Move {
+        assert(self.face != other.face)
+        if self.magnitude.isOpposite(other: other.magnitude) {
+            return self
+        }
+        return Move(face: self.face, magnitude: self.magnitude.add(other: other.magnitude))
     }
 }
 
