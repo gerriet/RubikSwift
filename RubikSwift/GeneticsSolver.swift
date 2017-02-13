@@ -28,23 +28,25 @@ public final class Solver {
     public func runGeneration() {
         // Current approach:
         // Kill 75% of the "worst" algorithms
-        // Take the top 10% and create 10 mutations for each (we keep the original 10% as well)
+        // Take the top 5% and create 5 mutations for each (we keep the original 5% as well)
         // Produce 30% of population size as new children by selecting two random parents from 25% not-killed algorithms
+        // Produce 5% of population size as random new individuals
         // Take the remaining 90% and create some mutations for them too, enough to go back to self.populationSize
 
         let percentageOfIndividualsToKill = 0.75
-        let percentageOfTopIndividualsToHaveIncreasedOffspring = 0.10
-        let numberOfOffspringForTopIndividuals = 10
-        let percentageOfChildren = 0.3 // Percentage of total population size
-
+        let percentageOfTopIndividualsToHaveIncreasedOffspring = 0.05
+        let numberOfOffspringForTopIndividuals = 5
+        let percentageOfChildren = 0.35 // Percentage of total population size
+        let percentageOfRandom = 0.05
 
         let numberOfIndividualsToKill = Int(Double(self.populationSize) * percentageOfIndividualsToKill)
         let populationSizeAfterSelection = self.populationSize - numberOfIndividualsToKill
         let numberOfIndividualsToHaveIncreasedOffspring = Int(Double(populationSizeAfterSelection) * percentageOfTopIndividualsToHaveIncreasedOffspring)
         let numberNewChildren = Int(Double(self.populationSize) * percentageOfChildren)
+        let numberRandom = Int(Double(self.populationSize) * percentageOfRandom)
         let numberOfOtherIndividuals = populationSizeAfterSelection - numberOfIndividualsToHaveIncreasedOffspring
         let numberOfTopOffspring = numberOfIndividualsToHaveIncreasedOffspring * numberOfOffspringForTopIndividuals
-        let numberOfOffspringForRemainingIndividuals = Int(ceil(Double(self.populationSize - numberOfIndividualsToHaveIncreasedOffspring - numberOfTopOffspring - numberNewChildren - numberOfOtherIndividuals) / Double(numberOfOtherIndividuals)))
+        let numberOfOffspringForRemainingIndividuals = Int(ceil(Double(self.populationSize - numberOfIndividualsToHaveIncreasedOffspring - numberOfTopOffspring - numberNewChildren - numberRandom - numberOfOtherIndividuals) / Double(numberOfOtherIndividuals)))
 
         var individuals = self.fitnessByIndividuals.map { $0.0 }
 
@@ -70,9 +72,10 @@ public final class Solver {
             }
 
             let topIndividualsOffspring = Array(repeating: topIndividuals, count: numberOfOffspringForTopIndividuals).flatMap { $0 }
+            let randomIndividuals = Individual.createRandom(numberRandom)
             let remainingIndividualsOffspring = Array(repeating: remainingIndividuals, count: numberOfOffspringForRemainingIndividuals).flatMap { $0 }
 
-            let mutants = (topIndividualsOffspring + children + remainingIndividualsOffspring).prefix(upTo: self.populationSize - individuals.count).map { $0.mutate () }
+            let mutants = (topIndividualsOffspring + children + randomIndividuals + remainingIndividualsOffspring).prefix(upTo: self.populationSize - individuals.count).map { $0.mutate () }
             individuals.append(contentsOf: mutants)
         }
 
@@ -228,5 +231,6 @@ extension Individual {
         }
         return Individual(algorithm: algorithm)
     }
+
 
 }
