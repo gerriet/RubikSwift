@@ -154,16 +154,17 @@ extension Individual {
         var cubeAfterApplyingAlgorithm = cube
         cubeAfterApplyingAlgorithm.apply(self.algorithm)
 
-        return Fitness(cubeAfterApplyingAlgorithm.numberOfSolvedPieces)
+        // within the same number of solved pieces prefer shorter algorithms
+        return Fitness(cubeAfterApplyingAlgorithm.numberOfSolvedPieces) + 1.0/(Double(1+self.algorithm.count))
     }
 }
 
 extension Individual {
-    fileprivate static let chancesOfMoveRemoval = 1
-    fileprivate static let chancesOfMoveAddition = 100
+    fileprivate static let chancesOfMoveRemoval = 5
+    fileprivate static let chancesOfMoveAddition = 95
     // Variate these depending on the "stage" of the solution?
-    fileprivate static let minMovesToAdd = 7
-    fileprivate static let maxMovesToAdd = 25
+    fileprivate static let minMovesToAdd = 2
+    fileprivate static let maxMovesToAdd = 20
     fileprivate static let chancesOfMoveAdditionHappensAtRandomIndex = 1
 
     func mutate() -> Individual {
@@ -172,7 +173,7 @@ extension Individual {
         let randomNumber = Int.random(in: 1...100)
 
         let removeMove = randomNumber <= Individual.chancesOfMoveRemoval
-        if removeMove {
+        if removeMove && algorithm.count > 4 {
             algorithm.remove(at: Array(algorithm.indices).count - 1)
         }
 
@@ -225,7 +226,6 @@ extension Individual {
                 skip = false
             }
         }
-        
         return Individual(algorithm: algorithm)
     }
 

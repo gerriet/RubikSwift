@@ -38,7 +38,7 @@ final class GeneticsTests {
                 if bestIndividual == nil || fitnessByIndividuals.first!.1 > bestIndividual!.1 {
                     bestIndividual = fitnessByIndividuals.first!
 
-                    print("\(generation): New best: \(bestIndividual!.0.algorithm.sequenceString) (\(bestIndividual!.1))")
+                    print("\(generation): New best: \(bestIndividual!.0.algorithm.sequenceString) (\(Int(bestIndividual!.1))), length: \(bestIndividual!.0.algorithm.count)")
                 }
 
                 if generation % 100 == 0 {
